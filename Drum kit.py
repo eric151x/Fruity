@@ -4,6 +4,7 @@ import webview.menu as wm
 from tkinter import filedialog
 import ttkthemes
 from winotify import Notification
+import os
 
 def resetar():
     view.load_url('https://drum-kit-uxbn.glide.page')
@@ -21,8 +22,9 @@ class Api:
         view.clear_cookies()
         print('Cookies cleared')
 
-def notifi_baixado(zip):
-    notificacao = Notification(app_id="Drum Kit", title=f"{zip} instalado!", msg=f"{zip} instalado com sucesso!")
+notificacao = Notification(app_id="Drum Kit", title="Baixado!", msg="Baixado com sucesso!")
+
+def notifi_baixado():
     notificacao.show()
 
 def config():
@@ -42,6 +44,21 @@ def config():
 def lugar():
     ludar = filedialog.askdirectory()
 
+def arquivos():
+    caminho = "/Downloads"
+    files = os.listdir(caminho)
+
+    win = Tk()
+    win.geometry("450x800")
+
+    transform = StringVar(win)
+    transform.set(files[0])
+
+    lista = OptionMenu(win, transform, files)
+    lista.grid(column=0, row=0)
+
+    win.mainloop()
+
 tk = Tk()
 tk.geometry("800x450")
 
@@ -59,14 +76,13 @@ menu_itens = [
         'Menu',
             [
                 wm.MenuAction('Resetar', resetar),
-                wm.MenuAction('Ver Cookies', read_cookies),
-                wm.MenuAction('Limpar Cookies', Api.clearCookies),
                 wm.MenuSeparator(),
+                wm.MenuAction("Configurações", config),
                 wm.MenuAction("Sair", exit)
             ],
         ),
-    wm.MenuAction("Config", config),
-    wm.MenuAction("teste", notifi_baixado("Bregadeira.zip"))
+    
+    wm.MenuAction("Downloads", arquivos)
 ]
 
 webview.start(read_cookies, view, private_mode=False, http_server=True, http_port=13377, menu=menu_itens) 
