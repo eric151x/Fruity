@@ -58,10 +58,12 @@ def configuracao():
     caminho.config()
     configu.mainloop()
 
-def instalar(baguio):
-    messagebox.showinfo("Instalado!", f"{baguio} instalado com sucesso!")
-
 def arquivos():
+    def instalar(baguio, lugat):
+        with zipfile.ZipFile(f"{lugat}/{baguio}", 'r') as file:
+            file.extractall(path=f"C:/Users/{os.getlogin()}/Desktop/Python/Drum Kit/Extração")
+        messagebox.showinfo("Instalado!", f"{baguio} instalado com sucesso!")
+
     caminho = f"C:/Users/{os.getlogin()}/Desktop/Python/Drum Kit/Downloads"
     files = os.listdir(caminho)
 
@@ -75,15 +77,12 @@ def arquivos():
     lista = OptionMenu(win, transform, *files)
     lista.grid(column=0, row=0)
 
-    pronto = transform.get()
-
-    istala = Button(win, text="Instalar", command=instalar(pronto))
+    istala = Button(win, text="Instalar", command=lambda: instalar(transform.get(), caminho))
     istala.grid(column=0, row=1)
 
     win.mainloop()
 
-tk = Tk()
-tk.geometry("800x450")
+
 
 webview.settings = {
   'ALLOW_DOWNLOADS': True,
@@ -92,7 +91,7 @@ webview.settings = {
   'OPEN_DEVTOOLS_IN_DEBUG': True
 }
 
-view = webview.create_window('Drum Kits', 'https://drum-kit-uxbn.glide.page', js_api=Api())
+view = webview.create_window('Drum Kits', 'https://drum-kit-uxbn.glide.page', js_api=Api(), draggable=True, background_color="#131315")
 
 menu_itens = [
     wm.Menu(
