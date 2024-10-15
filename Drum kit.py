@@ -62,6 +62,7 @@ def arquivos():
     def instalar(baguio, lugat):
         with zipfile.ZipFile(f"{lugat}/{baguio}", 'r') as file:
             file.extractall(path=f"C:/Users/{os.getlogin()}/Desktop/Python/Drum Kit/Extração")
+
         messagebox.showinfo("Instalado!", f"{baguio} instalado com sucesso!")
 
     caminho = f"C:/Users/{os.getlogin()}/Desktop/Python/Drum Kit/Downloads"
