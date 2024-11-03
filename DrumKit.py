@@ -3,7 +3,6 @@ import webview
 import webview.menu as wm
 from tkinter import filedialog
 import os
-import configparser
 from tkinter import messagebox
 import zipfile
 from tkinter import ttk
@@ -11,29 +10,13 @@ from tkinter import ttk
 Local = os.path.dirname(os.path.abspath(__file__))
 caminho = f"{Local}\Downloads"
 
-if os.path.exists(caminho):
-    files = os.listdir(caminho)
-
-else:
+if not os.path.exists(caminho):
     os.mkdir(caminho)
     files = os.listdir(caminho)
 
-config = configparser.ConfigParser()
-
-config_file_path = os.path.join(Local, 'config.ini')
-
-# Verifica se o arquivo config.ini existe
-if os.path.exists(config_file_path):
-    print("O arquivo config.ini existe.")
-else:
-    config['DEFAULT'] = {
-        'LOCAL_INSTALACAO': None
-    }
-
-    with open('config.ini', 'w') as configfile:
-        config.write(configfile)
-
-    messagebox.showwarning("Atenção!", "Por favor vá nas configurações e configure o local de instalação")
+if not os.path.exists(f"{Local}\local.ini"):
+    with open(f"{Local}\local.ini", "w") as arquivo:
+        arquivo.write("")
 
 def reiniciar():
     view.load_url('https://drum-kit-uxbn.glide.page')
@@ -54,20 +37,25 @@ class Api:
 def configuracao():
 
     def salvar(local):
-        config.set("DEFAULT", "LOCAL_INSTALACAO", local)
-        with open('config.ini', 'w') as configfile:
-            config.write(configfile)
+        with open(f"{Local}\local.ini", "w") as arquivo:
+            arquivo.write(local)
         messagebox.showinfo("Salvo!", "Salvo com sucesso!")
 
+  
     configu = Tk()
     configu.title("Configuração")
-    configu.geometry("300x200")
+    configu.geometry("330x100")
     
     texto = ttk.Label(configu, text="Caminho de instalação:")
     texto.grid(column=0, row=0)
 
     caminho = ttk.Entry(configu)
     caminho.grid(column=1, row=0)
+
+    with open(f'{Local}\local.ini', 'r') as arquivo:
+        conteudo = arquivo.read()
+        caminho.delete(0,END)
+        caminho.insert(0, conteudo)
 
     def lugar():
         ludar = filedialog.askdirectory()
@@ -87,44 +75,50 @@ def configuracao():
     configu.mainloop()
 
 def arquivos():
-    def instalar(baguio, lugat):
-        with zipfile.ZipFile(f"{lugat}/{baguio}", 'r') as file:
-            file.extractall(path=config["DEFAULT"]["LOCAL_INSTALACAO"])
+    with open(f'{Local}\local.ini', 'r') as arquivo:
+        conteudo2 = arquivo.read()
 
-        messagebox.showinfo("Instalado!", f"{baguio} instalado com sucesso!")
+    if conteudo2 != "":
+        def instalar(baguio, lugat):
+            with zipfile.ZipFile(f"{lugat}/{baguio}", 'r') as file:
+                file.extractall(path=conteudo2)
 
-    def apagar(negocio, lugar):
-        os.remove(path=f"{lugar}/{negocio}")
-        messagebox.showinfo("Apagado!", f"{negocio} apagado com sucesso!")
+            messagebox.showinfo("Instalado!", f"{baguio} instalado com sucesso!")
 
-    files = os.listdir(caminho)
+        def apagar(negocio, lugar):
+            os.remove(path=f"{lugar}/{negocio}")
+            messagebox.showinfo("Apagado!", f"{negocio} apagado com sucesso!")
 
-    win = Tk()
-    win.geometry("200x200")
-    win.title("Downloads")
+        files = os.listdir(caminho)
 
-    istala = ttk.Button(win, text="Instalar", command=lambda: instalar(transform.get(), caminho))
-    istala.grid(column=0, row=1)
+        win = Tk()
+        win.geometry("200x200")
+        win.title("Downloads")
 
-    apag = ttk.Button(win, text="Apagar", command=lambda: apagar(transform.get(), caminho))
-    apag.grid(column=0, row=2)
+        istala = ttk.Button(win, text="Instalar", command=lambda: instalar(transform.get(), caminho))
+        istala.grid(column=0, row=1)
 
-    if files == []:
-        inicio = "Nenhum download"
-        istala.config(state="disabled")
-        apag.config(state="disabled")
+        apag = ttk.Button(win, text="Apagar", command=lambda: apagar(transform.get(), caminho))
+        apag.grid(column=0, row=2)
 
+        if files == []:
+            inicio = "Nenhum download"
+            istala.config(state="disabled")
+            apag.config(state="disabled")
+
+        else:
+            inicio = files[0]
+
+        transform = StringVar(win)
+        transform.set(inicio)
+
+        lista = ttk.OptionMenu(win, transform, *files)
+        lista.grid(column=0, row=0)
+
+
+        win.mainloop()
     else:
-        inicio = files[0]
-
-    transform = StringVar(win)
-    transform.set(inicio)
-
-    lista = ttk.OptionMenu(win, transform, *files)
-    lista.grid(column=0, row=0)
-
-
-    win.mainloop()
+        messagebox.showinfo("Atenção!", "vá para configurações e adicione o local de instalação!")
 
 webview.settings = {
   'ALLOW_DOWNLOADS': True,
